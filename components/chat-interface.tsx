@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useActionState } from "react"; // カスタムフックの確認
-import { generatePR } from "@/app/actions/generate-pr";
+// useActionState のインポートを削除
+import { generatePR, GeneratePRResponse } from "@/app/actions/generate-pr";
 import {
   Card,
   CardContent,
@@ -37,17 +37,17 @@ export function ChatInterface({
     },
   ]);
   const [input, setInput] = useState("");
+  const [state, setState] = useState<GeneratePRResponse>({
+    success: false,
+    error: "",
+  });
 
-  // useActionState が generatePR を正しく扱うように確認
-  const [state, formAction] = useActionState(generatePR, null);
-
-  // Transition フック
   const [isPending, startTransition] = useTransition();
 
-  const handleSend = async () => {
+  const handleSend = () => {
     if (!input.trim()) return;
 
-    const newMessages = [
+    const newMessages: Message[] = [
       ...messages,
       {
         role: "user",
@@ -57,25 +57,37 @@ export function ChatInterface({
     setMessages(newMessages);
     setInput("");
 
-    // startTransition で非同期処理を開始
     startTransition(async () => {
-      const result = await formAction(section, input);
-      console.log("formAction result:", result);
+      try {
+        const result = await generatePR(section, input);
+        console.log("generatePR result:", result);
+        setState(result);
 
-      if (result?.success) {
+        if (result.success) {
+          setMessages([
+            ...newMessages,
+            {
+              role: "assistant",
+              content: result.content,
+            },
+          ]);
+        } else {
+          setMessages([
+            ...newMessages,
+            {
+              role: "assistant",
+              content:
+                result.error ?? "エラーが発生しました。もう一度お試しください。",
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Error generating PR:", error);
         setMessages([
           ...newMessages,
           {
             role: "assistant",
-            content: result.content,
-          },
-        ]);
-      } else {
-        setMessages([
-          ...newMessages,
-          {
-            role: "assistant",
-            content: "エラーが発生しました。もう一度お試しください。",
+            content: "予期せぬエラーが発生しました。もう一度お試しください。",
           },
         ]);
       }

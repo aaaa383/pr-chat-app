@@ -19,6 +19,7 @@ interface ContentSectionProps {
   tooltip?: string
   maxLength?: number
   onAIGeneration?: () => void
+  content?: string // content プロパティを追加
 }
 
 export function ContentSection({
