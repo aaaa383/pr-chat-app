@@ -1,10 +1,10 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   experimental: {
-    serverActions: true,
+    serverActions: {}, // 空オブジェクトに修正
   },
-  // 他に config options があればここに追記
 };
 
 export default nextConfig;
+
