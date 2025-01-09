@@ -16,13 +16,20 @@ const TEMPLATE_TEXT = `■状況説明（いつ、何に、どのような役割
 ■結果（どのように変化したのか）`
 
 export default function Page() {
+  // 「どのセクションでAI生成中か」を管理
   const [activeChatSection, setActiveChatSection] = useState<string | null>(null)
+
+  // 各セクションの入力データをオブジェクトで管理
   const [sectionContents, setSectionContents] = useState<Record<string, string>>({})
 
+  // AI生成ボタン押下でChatInterfaceを表示するため
   const handleAIGeneration = (section: string) => {
     setActiveChatSection(section)
   }
 
+  // 「生成された内容を使用」ボタン押下時に呼ばれる
+  // ChatInterface -> onContentGenerated -> handleContentGenerated
+  // ⇒ セクションに応じた入力欄(ContentSectionなど)に反映する
   const handleContentGenerated = (section: string, content: string) => {
     setSectionContents(prev => ({
       ...prev,
@@ -135,6 +142,7 @@ export default function Page() {
           </CardContent>
         </Card>
 
+        {/* ChatInterface をモーダル的に出す */}
         {activeChatSection && (
           <ChatInterface
             section={activeChatSection}
@@ -146,4 +154,3 @@ export default function Page() {
     </TooltipProvider>
   )
 }
-

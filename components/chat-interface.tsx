@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-// useActionState のインポートを削除
-import { generatePR, GeneratePRResponse } from "@/app/actions/generate-pr";
 import {
   Card,
   CardContent,
@@ -13,10 +11,12 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { generatePR, Message as APISideMessage } from "@/app/actions/generate-pr";
 
 interface ChatInterfaceProps {
   section: string;
   onClose: () => void;
+  // "生成された内容を使用"ボタン押下時のコールバック
   onContentGenerated: (content: string) => void;
 }
 
@@ -30,54 +30,44 @@ export function ChatInterface({
   onClose,
   onContentGenerated,
 }: ChatInterfaceProps) {
+  // 初期メッセージ
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       content: `${section}についての情報を教えてください。具体的にどのような内容を書きたいですか？`,
     },
   ]);
-  const [input, setInput] = useState("");
-  const [state, setState] = useState<GeneratePRResponse>({
-    success: false,
-    error: "",
-  });
 
+  const [input, setInput] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const handleSend = () => {
     if (!input.trim()) return;
 
-    const newMessages: Message[] = [
-      ...messages,
-      {
-        role: "user",
-        content: input,
-      },
-    ];
+    // ユーザーの発言を messages に追加
+    const newMessages: Message[] = [...messages, { role: "user", content: input }];
     setMessages(newMessages);
-    setInput("");
 
     startTransition(async () => {
       try {
-        const result = await generatePR(section, input);
-        console.log("generatePR result:", result);
-        setState(result);
+        // サーバーアクションに「これまでの会話履歴」と「section」情報を渡す
+        const result = await generatePR(newMessages, section);
 
         if (result.success) {
+          // AIの応答を追加
           setMessages([
             ...newMessages,
-            {
-              role: "assistant",
-              content: result.content,
-            },
+            { role: "assistant", content: result.content },
           ]);
+          // 送信後、入力欄をクリア
+          setInput("");
         } else {
+          // エラー時のメッセージ
           setMessages([
             ...newMessages,
             {
               role: "assistant",
-              content:
-                result.error ?? "エラーが発生しました。もう一度お試しください。",
+              content: result.error ?? "エラーが発生しました。もう一度お試しください。",
             },
           ]);
         }
@@ -94,7 +84,9 @@ export function ChatInterface({
     });
   };
 
+  // 「生成された内容を使用」ボタン
   const handleUseContent = () => {
+    // 最後のメッセージがアシスタントからの生成文と仮定
     const generatedContent = messages[messages.length - 1].content;
     onContentGenerated(generatedContent);
     onClose();

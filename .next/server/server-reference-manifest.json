@@ -1,1 +1,17 @@
-{"node":{"607fec41ab6744ee07ddcf7fd53b421a1a3e8f5fb2":{"workers":{"app/page":{"moduleId":"2050","async":false}},"layer":{"app/page":"action-browser"}}},"edge":{},"encryptionKey":"9FApc4evqo991HhJ92kV7BT2HS1sMXq8TVV9rTNG75s="}
+{
+  "node": {
+    "60679ac4ced5ab4df9fbe3c68507c24bbbffb76d0c": {
+      "workers": {
+        "app/page": {
+          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/generate-pr.ts [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/page": "action-browser"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "9FApc4evqo991HhJ92kV7BT2HS1sMXq8TVV9rTNG75s="
+}
